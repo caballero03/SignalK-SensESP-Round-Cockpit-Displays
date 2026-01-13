@@ -11,12 +11,51 @@
 #include <memory>
 
 #include "sensesp.h"
-#include "sensesp/sensors/analog_input.h"
-#include "sensesp/sensors/digital_input.h"
-#include "sensesp/sensors/sensor.h"
-#include "sensesp/signalk/signalk_output.h"
-#include "sensesp/system/lambda_consumer.h"
+// #include "sensesp/sensors/analog_input.h"
+// #include "sensesp/sensors/digital_input.h"
+// #include "sensesp/sensors/sensor.h"
+// #include "sensesp/signalk/signalk_output.h"
+// #include "sensesp/system/lambda_consumer.h"
 #include "sensesp_app_builder.h"
+
+#include <TFT_eSPI.h>
+#include "gauge1.h"
+#include "myGauge_1.h"
+#include "myGauge_1a.h"
+#include "myGauge_1b.h"
+#include "gauge2.h"
+#include "gauge3.h"
+#include "gauge4.h"
+#include "gauge5.h"
+#include "gauge6.h"
+#include "font.h"
+
+#define TOUCH_CS 0
+
+// Native/local display CS line
+#define LCD_0_CS 9
+
+// Remote displays' CS lines
+#define LCD_1_CS 46   // J3 on PCB
+#define LCD_2_CS 45   // J4
+#define LCD_3_CS 42   // J5
+#define LCD_4_CS 39   // J6
+
+// Pin used for backlight PWM brightness control
+#define LCD_BACKLIGHT_PIN 40
+
+// use first channel of 16 channels (started from zero)
+// #define LEDC_CHANNEL_0     0
+
+// use 12 bit precission for LEDC timer
+#define LEDC_TIMER_12_BIT  12
+
+// use 5000 Hz as a LEDC base frequency
+#define LEDC_BASE_FREQ     5000
+
+TFT_eSPI tft = TFT_eSPI(); 
+TFT_eSprite img = TFT_eSprite(&tft);
+// TFT_eSprite ln = TFT_eSprite(&tft);
 
 using namespace sensesp;
 
@@ -28,7 +67,8 @@ void setup() {
   SensESPAppBuilder builder;
   sensesp_app = (&builder)
                     // Set a custom hostname for the app.
-                    ->set_hostname("my-sensesp-project")
+                    // ->set_hostname("my-sensesp-project")
+                    ->set_hostname("cockpit-gauges")
                     // Optionally, hard-code the WiFi and Signal K server
                     // settings. This is normally not needed.
                     //->set_wifi_client("My WiFi SSID", "my_wifi_password")
@@ -36,103 +76,102 @@ void setup() {
                     //->set_sk_server("192.168.10.3", 80)
                     ->get_app();
 
-  // GPIO number to use for the analog input
-  const uint8_t kAnalogInputPin = 36;
-  // Define how often (in milliseconds) new samples are acquired
-  const unsigned int kAnalogInputReadInterval = 500;
-  // Define the produced value at the maximum input voltage (3.3V).
-  // A value of 3.3 gives output equal to the input voltage.
-  const float kAnalogInputScale = 3.3;
 
-  // Create a new Analog Input Sensor that reads an analog input pin
-  // periodically.
-  auto analog_input = std::make_shared<AnalogInput>(
-      kAnalogInputPin, kAnalogInputReadInterval, "", kAnalogInputScale);
+  pinMode(0,INPUT_PULLUP);
 
-  // Add an observer that prints out the current value of the analog input
-  // every time it changes.
-  analog_input->attach([analog_input]() {
-    debugD("Analog input value: %f", analog_input->get());
-  });
+    // Native display CS pins
+    pinMode(LCD_0_CS, OUTPUT);
 
-  // Set GPIO pin 15 to output and toggle it every 650 ms
+    // Remote CS pins
+    pinMode(LCD_1_CS, OUTPUT);
+    pinMode(LCD_2_CS, OUTPUT);
+    pinMode(LCD_3_CS, OUTPUT);
+    pinMode(LCD_4_CS, OUTPUT);
+   
+    // tft.init();
+    // tft.setRotation(3);
+    // tft.setSwapBytes(true);
+    // // img.setSwapBytes(true);
+    // // img.fillScreen(TFT_ORANGE);TFT_RED
+    // img.createSprite(240, 240);
 
-  const uint8_t kDigitalOutputPin = 15;
-  const unsigned int kDigitalOutputInterval = 650;
-  pinMode(kDigitalOutputPin, OUTPUT);
-  event_loop()->onRepeat(kDigitalOutputInterval, [kDigitalOutputPin]() {
-    digitalWrite(kDigitalOutputPin, !digitalRead(kDigitalOutputPin));
-  });
+    digitalWrite(LCD_0_CS, LOW); // native display
 
-  // Read GPIO 14 every time it changes
+    digitalWrite(LCD_1_CS, HIGH); // remote display (test)
+    digitalWrite(LCD_2_CS, LOW); // remote display (test)
+    digitalWrite(LCD_3_CS, LOW); // remote display (test)
+    digitalWrite(LCD_4_CS, LOW); // remote display (test)
 
-  const uint8_t kDigitalInput1Pin = 14;
-  auto digital_input1 = std::make_shared<DigitalInputChange>(
-      kDigitalInput1Pin, INPUT_PULLUP, CHANGE);
 
-  // Connect the digital input to a lambda consumer that prints out the
-  // value every time it changes.
+    tft.init();
+    tft.setRotation(4);
+    tft.setSwapBytes(true);
+    img.setSwapBytes(true);
+    tft.fillScreen(TFT_ORANGE);
+    img.createSprite(240, 240);
 
-  // Test this yourself by connecting pin 15 to pin 14 with a jumper wire and
-  // see if the value changes!
 
-  auto digital_input1_consumer = std::make_shared<LambdaConsumer<bool>>(
-      [](bool input) { debugD("Digital input value changed: %d", input); });
+    // img.pushImage(0,0,240,240,gauge2);
+  img.pushImage(0,0,240,240,myGauge_1);
+  img.pushSprite(0, 0);
+  
 
-  digital_input1->connect_to(digital_input1_consumer);
+  digitalWrite(LCD_0_CS, HIGH); // native display
 
-  // Create another digital input, this time with RepeatSensor. This approach
-  // can be used to connect external sensor library to SensESP!
+  digitalWrite(LCD_1_CS, HIGH); // remote display
+  digitalWrite(LCD_2_CS, LOW); // remote display
+  digitalWrite(LCD_3_CS, HIGH); // remote display
+  digitalWrite(LCD_4_CS, HIGH); // remote display
 
-  const uint8_t kDigitalInput2Pin = 13;
-  const unsigned int kDigitalInput2Interval = 1000;
+  // img.pushImage(0,0,240,240,gauge1);
+  img.pushImage(0,0,240,240,myGauge_1);
+  img.pushSprite(0, 0);
 
-  // Configure the pin. Replace this with your custom library initialization
-  // code!
-  pinMode(kDigitalInput2Pin, INPUT_PULLUP);
+  digitalWrite(LCD_1_CS, HIGH); // remote display
+  digitalWrite(LCD_2_CS, HIGH); // remote display
+  digitalWrite(LCD_3_CS, LOW); // remote display
+  digitalWrite(LCD_4_CS, HIGH); // remote display
 
-  // Define a new RepeatSensor that reads the pin every 100 ms.
-  // Replace the lambda function internals with the input routine of your custom
-  // library.
+  // img.pushImage(0,0,240,240,gauge2);
+  img.pushImage(0,0,240,240,myGauge_1b);
+  img.pushSprite(0, 0);
 
-  // Again, test this yourself by connecting pin 15 to pin 13 with a jumper
-  // wire and see if the value changes!
+  digitalWrite(LCD_1_CS, HIGH); // remote display
+  digitalWrite(LCD_2_CS, HIGH); // remote display
+  digitalWrite(LCD_3_CS, HIGH); // remote display
+  digitalWrite(LCD_4_CS, LOW); // remote display
 
-  auto digital_input2 = std::make_shared<RepeatSensor<bool>>(
-      kDigitalInput2Interval,
-      [kDigitalInput2Pin]() { return digitalRead(kDigitalInput2Pin); });
+  // img.pushImage(0,0,240,240,gauge3);
+  img.pushImage(0,0,240,240,myGauge_1a);
+  img.pushSprite(0, 0);
 
-  // Connect the analog input to Signal K output. This will publish the
-  // analog input value to the Signal K server every time it changes.
-  auto aiv_metadata = std::make_shared<SKMetadata>("V", "Analog input voltage");
-  auto aiv_sk_output = std::make_shared<SKOutput<float>>(
-      "sensors.analog_input.voltage",   // Signal K path
-      "/Sensors/Analog Input/Voltage",  // configuration path, used in the
-                                        // web UI and for storing the
-                                        // configuration
-      aiv_metadata
-  );
+  digitalWrite(LCD_1_CS, HIGH); // remote display
+  digitalWrite(LCD_2_CS, HIGH); // remote display
+  digitalWrite(LCD_3_CS, HIGH); // remote display
+  digitalWrite(LCD_4_CS, HIGH); // remote display
 
-  ConfigItem(aiv_sk_output)
-      ->set_title("Analog Input Voltage SK Output Path")
-      ->set_description("The SK path to publish the analog input voltage")
-      ->set_sort_order(100);
 
-  analog_input->connect_to(aiv_sk_output);
+  // digitalWrite(LCD_0_CS, LOW); // native display
 
-  // Connect digital input 2 to Signal K output.
-  auto di2_metadata = std::make_shared<SKMetadata>("", "Digital input 2 value");
-  auto di2_sk_output = std::make_shared<SKOutput<bool>>(
-      "sensors.digital_input2.value",    // Signal K path
-      "/Sensors/Digital Input 2/Value",  // configuration path
-      di2_metadata
-  );
+  // digitalWrite(LCD_2_CS, LOW); // remote display (test)
+  // digitalWrite(LCD_3_CS, LOW); // remote display (test)
+  // digitalWrite(LCD_4_CS, LOW); // remote display (test)
 
-  ConfigItem(di2_sk_output)
-      ->set_title("Digital Input 2 SK Output Path")
-      ->set_sort_order(200);
+  ////////////////////////////////////////////////////////////////////
+  //
+  // Setting up the LEDC and configuring the Back light pin
+  // NOTE: this needs to be done after tft.init()
+#if ESP_IDF_VERSION_MAJOR == 5
+  ledcAttach(LCD_BACKLIGHT_PIN, LEDC_BASE_FREQ, LEDC_TIMER_12_BIT);
+#else
+  ledcSetup(LEDC_CHANNEL_0, LEDC_BASE_FREQ, LEDC_TIMER_12_BIT);
+  ledcAttachPin(LCD_BACKLIGHT_PIN, LEDC_CHANNEL_0);
+#endif
 
-  digital_input2->connect_to(di2_sk_output);
+  // ledcWrite(LCD_BACKLIGHT_PIN, (uint32_t)800);
+  ledcWrite(LCD_BACKLIGHT_PIN, (uint32_t)200);
+//   ledcWrite(LCD_BACKLIGHT_PIN, (uint32_t)2047);
+
 
   // To avoid garbage collecting all shared pointers created in setup(),
   // loop from here.
@@ -141,4 +180,6 @@ void setup() {
   }
 }
 
-void loop() { event_loop()->tick(); }
+void loop() { 
+    event_loop()->tick(); 
+}
