@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="466.21799"
+   height="466.21799"
+   viewBox="0 0 123.3535 123.35351"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.4.3 (0d15f75, 2025-12-25)"
+   sodipodi:docname="Engine_Hours_Gauge_v1.0_20260123.svg"
+   inkscape:export-filename="Engine_Hours_Gauge_v1.0_20260123.png"
+   inkscape:export-xdpi="49.418941"
+   inkscape:export-ydpi="49.418941"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:zoom="1.8682248"
+     inkscape:cx="233.10899"
+     inkscape:cy="233.10899"
+     inkscape:window-width="2048"
+     inkscape:window-height="1080"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1"
+     inkscape:export-bgcolor="#000000ff" />
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <circle
+       style="display:inline;fill:none;stroke:#9f0000;stroke-width:0.281881;stroke-dasharray:none;stroke-opacity:0.7"
+       id="path1"
+       cx="61.676754"
+       cy="61.676754"
+       r="61.535816"
+       sodipodi:insensitive="true" />
+    <path
+       id="rect10"
+       style="display:inline;stroke:#8885a4;stroke-width:1.532"
+       d="m 22.141611,49.088179 c -3.237282,0 -5.84347,-2.606188 -5.84347,-5.84347 V 26.768484 c 0,-3.237282 2.606188,-5.84347 5.84347,-5.84347 l 60.805822,-0.02333 c -0.03815,-3.295182 2.595867,-5.098581 5.867714,-5.098581 h 7.410746 c 3.271847,0 5.905857,2.634014 5.905857,5.905861 v 26.607399 c 0,3.271847 -2.63401,5.905861 -5.905857,5.905861 h -7.410746 c -3.271847,0 -5.905861,-1.803399 -5.867714,-5.104643 z"
+       sodipodi:nodetypes="sssscsssssscs" />
+    <g
+       id="g5"
+       transform="translate(-4.9746975,-26.670158)"
+       style="display:none"
+       sodipodi:insensitive="true">
+      <rect
+         style="fill:none;stroke:#9f0000;stroke-width:0.374499;stroke-dasharray:none;stroke-opacity:0.7"
+         id="rect1"
+         width="16.585293"
+         height="25.316544"
+         x="22.858315"
+         y="49.018482" />
+      <rect
+         style="fill:none;stroke:#9f0000;stroke-width:0.374499;stroke-dasharray:none;stroke-opacity:0.7"
+         id="rect2"
+         width="16.585293"
+         height="25.316544"
+         x="39.443607"
+         y="49.018482" />
+      <rect
+         style="fill:none;stroke:#9f0000;stroke-width:0.374499;stroke-dasharray:none;stroke-opacity:0.7"
+         id="rect3"
+         width="16.585293"
+         height="25.316544"
+         x="56.0289"
+         y="49.018482" />
+      <rect
+         style="fill:none;stroke:#9f0000;stroke-width:0.374499;stroke-dasharray:none;stroke-opacity:0.7"
+         id="rect4"
+         width="16.585293"
+         height="25.316544"
+         x="72.614197"
+         y="49.018482" />
+      <rect
+         style="fill:none;stroke:#9f0000;stroke-width:0.442645;stroke-dasharray:none;stroke-opacity:0.7"
+         id="rect5"
+         width="16.517147"
+         height="35.514229"
+         x="89.199493"
+         y="43.91964" />
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-size:9.55243px;font-family:'Noto Sans Mono CJK HK';-inkscape-font-specification:'Noto Sans Mono CJK HK';writing-mode:lr-tb;direction:ltr;display:inline;fill:#bbbacc;fill-opacity:1;stroke-width:0.796035"
+       x="35.050457"
+       y="60.930927"
+       id="text1"><tspan
+         sodipodi:role="line"
+         id="tspan1"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Noto Sans Cherokee';-inkscape-font-specification:'Noto Sans Cherokee';fill:#bbbacc;fill-opacity:1;stroke-width:0.796035"
+         x="35.050457"
+         y="60.930927">HOURS</tspan></text>
+    <g
+       id="g4"
+       transform="matrix(1.6913997,0,0,1.6913997,0.24388461,-62.54362)"
+       style="display:inline">
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.175px;font-family:FreeSerif;-inkscape-font-specification:FreeSerif;writing-mode:lr-tb;direction:ltr;fill:#bbbacc;fill-opacity:1;stroke-width:0.264583"
+         x="80.847321"
+         y="80.93013"
+         id="text3"><tspan
+           sodipodi:role="line"
+           id="tspan3"
+           style="stroke-width:0.264583"
+           x="80.847321"
+           y="80.93013">1</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.175px;font-family:FreeSerif;-inkscape-font-specification:FreeSerif;writing-mode:lr-tb;direction:ltr;fill:#bbbacc;fill-opacity:1;stroke-width:0.264583"
+         x="79.923401"
+         y="85.089264"
+         id="text4"><tspan
+           sodipodi:role="line"
+           id="tspan4"
+           style="stroke-width:0.264583"
+           x="79.923401"
+           y="85.089264">10</tspan></text>
+      <path
+         style="fill:#bbbacc;fill-opacity:1;stroke:#bbbacc;stroke-width:0.308336;stroke-dasharray:none;stroke-opacity:1"
+         d="m 79.73775,81.878571 h 3.822508"
+         id="path4" />
+      <path
+         style="fill:#bbbacc;fill-opacity:1;stroke:#bbbacc;stroke-width:0.398243;stroke-dasharray:none;stroke-opacity:1"
+         d="m 76.541403,78.642519 v 6.376698"
+         id="path5" />
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-size:9.55243px;font-family:'Noto Sans Mono CJK HK';-inkscape-font-specification:'Noto Sans Mono CJK HK';writing-mode:lr-tb;direction:ltr;display:inline;fill:#bbbacc;fill-opacity:1;stroke-width:0.796035"
+       x="34.285057"
+       y="17.011061"
+       id="text10"><tspan
+         sodipodi:role="line"
+         id="tspan10"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Noto Sans Cherokee';-inkscape-font-specification:'Noto Sans Cherokee';fill:#bbbacc;fill-opacity:1;stroke-width:0.796035"
+         x="34.285057"
+         y="17.011061">ENGINE</tspan></text>
+    <g
+       id="g13"
+       transform="translate(0,1.1329829)">
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:7.56538px;font-family:FreeSerif;-inkscape-font-specification:FreeSerif;writing-mode:lr-tb;direction:ltr;fill:#bbbacc;fill-opacity:1;stroke-width:0.630449"
+         x="87.532906"
+         y="61.238373"
+         id="text11"><tspan
+           sodipodi:role="line"
+           id="tspan11"
+           style="stroke-width:0.630449"
+           x="87.532906"
+           y="61.238373">1</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:7.56538px;font-family:FreeSerif;-inkscape-font-specification:FreeSerif;writing-mode:lr-tb;direction:ltr;fill:#bbbacc;fill-opacity:1;stroke-width:0.630449"
+         x="91.987671"
+         y="67.324944"
+         id="text12"><tspan
+           sodipodi:role="line"
+           id="tspan12"
+           style="stroke-width:0.630449"
+           x="91.987671"
+           y="67.324944">10</tspan></text>
+      <path
+         style="fill:#bbbacc;fill-opacity:1;stroke:#bbbacc;stroke-width:0.65137;stroke-dasharray:none;stroke-opacity:1"
+         d="m 87.857527,66.175329 9.061671,-8.925312"
+         id="path12" />
+      <path
+         style="fill:#bbbacc;fill-opacity:1;stroke:#bbbacc;stroke-width:0.720594;stroke-dasharray:none;stroke-opacity:1"
+         d="M 83.820184,54.468931 V 66.812327"
+         id="path13"
+         inkscape:transform-center-x="-0.99136001"
+         inkscape:transform-center-y="0.48623588" />
+    </g>
+  </g>
+</svg>
