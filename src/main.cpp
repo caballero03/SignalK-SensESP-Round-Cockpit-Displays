@@ -30,6 +30,8 @@
 #include "mechanical_Digits_v1.1.h"
 #include "engineHours_BG_v1.0b.h"
 
+#include "DialGauge.h"
+
 // Native/local display CS line
 #define LCD_0_CS 9
 
@@ -69,10 +71,11 @@ TFT_eSprite mech_digit3 = TFT_eSprite(&tft);
 TFT_eSprite mech_digit4 = TFT_eSprite(&tft);
 // TFT_eSprite mech_digit5 = TFT_eSprite(&tft);
 
+// Create a new DialGauge object with the sprites
+DialGauge oilPressureGauge = DialGauge(&display, &dial, &needle);
+
 // This is the target digits for the mechanical display
 uint8_t targetDigitArray[8];
-
-
 
 void createMechDigits() {
     mech_digits.createSprite(33, 559);
@@ -88,46 +91,6 @@ void createMechFGImg() {
     mech_FG.pushImage(0, 0, 240, 240, Engine_Hours_Gauge);
 }
 
-void createDial(const unsigned short *gaugeImage) {
-    dial.createSprite(240, 240);
-    dial.setSwapBytes(true);
-    dial.fillSprite(TFT_BLACK);
-    dial.setPivot(120, 120);
-    dial.pushImage(0, 0, 240, 240, gaugeImage);
-}
-
-void updateDialImage(const unsigned short *gaugeImage) {
-    dial.pushImage(0, 0, 240, 240, gaugeImage);
-}
-
-void createNeedle() {
-    needle.createSprite(30, 110);
-    needle.setSwapBytes(true);
-    needle.fillSprite(TFT_BLACK);
-    needle.drawWedgeLine(15, 0, 15, 107, 6, 2, 0xf381); // Orange color
-    needle.setPivot(16, 0);
-}
-
-void updateGauge(float value) {
-    // Add the dial background to display sprite
-    dial.pushToSprite(&display,0,0);
-
-    // 7-segment display border and background
-    display.fillRoundRect(60, 165, 120, 60, 8, TFT_DARKGREY);
-    display.fillRoundRect(63, 168, 114, 54, 6, 0x589d); // 0x1ad3 = #1b589d
-
-    // 7-segment digits with one decimal place
-    display.setTextDatum(BC_DATUM); // place text based on bottom center origin
-    display.setTextSize(1);
-    display.setTextColor(TFT_LIGHTGREY, 0x589d); // 
-    display.drawFloat(value, 1, 120, 220, 7); // insert the text
-
-    // Add the needle to display sprite at correct angle
-    needle.pushRotated(&display, (value*3)+60, TFT_BLACK);
-    
-    // Push the display sprite to the screen (this method reduces flicker)
-    display.pushSprite(0,0);
-}
 
 void selectDisplay(int displayId) {
     switch(displayId) {
@@ -257,13 +220,8 @@ void setup() {
     tft.fillScreen(TFT_ORANGE);
     img.createSprite(240, 240);
 
+    // Now that all displays are initialized, turn off display #2
     digitalWrite(LCD_2_CS, HIGH);
-
-    // TODO: this needs to be initialized one(or more?) for each display to have a frame buffer
-    // Initialize the frame-buffer display sprite
-    display.createSprite(240, 240);
-    display.setPivot(120, 120);
-    display.fillSprite(TFT_BLACK);
 
     mechDigDisp.createSprite(240, 240);
     mechDigDisp.fillSprite(TFT_BLACK);
@@ -275,7 +233,6 @@ void setup() {
 
     // Test of individual displays
     // 
-
     selectDisplay(3);
     img.pushImage(0,0,240,240,myGauge_1b);
     img.pushSprite(0, 0);
@@ -290,9 +247,11 @@ void setup() {
     ///////////////////////////////////////////////////////////////////
     // Tests to develop gauge stuff
 
-    createDial(myGauge_1g);
-    createNeedle();
+    // createDial(myGauge_1g);
+    // createNeedle();
     // updateGauge(300);
+
+    oilPressureGauge.createDial(myGauge_1g);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -321,6 +280,11 @@ void setup() {
     mech_digit4.createSprite(33, 50);
     // mech_digit5.createSprite(33, 50);
     
+    //////////////////////////////////////////////////////////////////////////////////////
+    // This is a 10fps animation routine to animate the mechanical digits 
+    // in a somewhat realistic way. Why? Because it is fun and possibly 
+    // has some "cool factor" as well.
+
     event_loop()->onRepeat(100, []() {
         static uint8_t curDigit[5] = {0, 0, 0, 0, 0};
 
@@ -409,6 +373,7 @@ void setup() {
 
     //////////////////////////////////////////////////////////////////////////////////////
     // Using demo data from development SignalK server. Using the DBT for this test.
+    // This will, of course, be connected to engine oil pressure when finished.
 
     auto* depthListener = new FloatSKListener("environment.depth.belowTransducer");
 
@@ -418,8 +383,8 @@ void setup() {
                 ESP_LOGD("MyApp", "DBT:     %f meters", value);
 
                 selectDisplay(3);
-                digitalWrite(LCD_0_CS, LOW); // native display too, tee-hee
-                updateGauge(value);
+                digitalWrite(LCD_0_CS, LOW); // native display too, tee-hee Just wanted to show it on two screens at a time.
+                oilPressureGauge.updateGauge(value);
             }));
 
 
