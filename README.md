@@ -1,4 +1,9 @@
-# SensESP Project Template
+# Round LCD cockpit engine displays
+This project is an attempt to create repacements for some broken cockpit panel gauges with round LCD displays with data coming from the boat's SignalK server.
+
+Using one Waveshare ESP32-S3 1.28" round LCD (no touch) and three 1.28" LCD displays connected with cables to an adapter board between them all.
+
+# This project was started using: SensESP Project Template
 
 This repository provides a template for [SensESP](https://github.com/SignalK/SensESP/) projects.
 Fork, clone or download the repository and try building and uploading the project to an ESP32 device.
