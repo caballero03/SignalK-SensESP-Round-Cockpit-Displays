@@ -26,25 +26,18 @@
 #include "myGauge_1a.h"
 #include "myGauge_1b.h"
 #include "myGauge_1c.h"
-#include "myGauge_1f.h"
+#include "myGauge_1g.h"
 #include "mechanical_Digits_v1.1.h"
-#include "engineHours_BG_v1.0a.h"
-
-// #include "gauge1.h"
-// #include "gauge2.h"
-// #include "gauge3.h"
-// #include "gauge4.h"
-// #include "gauge5.h"
-// #include "gauge6.h"
-// #include "font.h"
-
-#define TOUCH_CS 0
+#include "engineHours_BG_v1.0b.h"
 
 // Native/local display CS line
 #define LCD_0_CS 9
 
+// This will be connected to the ignition switch power through an optoisolator
+#define ENGINE_RUN_INPUT 46
+
 // Remote displays' CS lines
-#define LCD_1_CS 46   // J3 on PCB
+// #define LCD_1_CS 46   // J3 on PCB
 #define LCD_2_CS 45   // J4
 #define LCD_3_CS 42   // J5
 #define LCD_4_CS 39   // J6
@@ -60,7 +53,7 @@
 
 TFT_eSPI tft = TFT_eSPI();
 
-TFT_eSprite img = TFT_eSprite(&tft);
+TFT_eSprite img = TFT_eSprite(&tft); // For testing only -- delete later
 TFT_eSprite display = TFT_eSprite(&tft);
 TFT_eSprite needle = TFT_eSprite(&tft);
 TFT_eSprite dial = TFT_eSprite(&tft);
@@ -74,16 +67,12 @@ TFT_eSprite mech_digit1 = TFT_eSprite(&tft);
 TFT_eSprite mech_digit2 = TFT_eSprite(&tft);
 TFT_eSprite mech_digit3 = TFT_eSprite(&tft);
 TFT_eSprite mech_digit4 = TFT_eSprite(&tft);
-TFT_eSprite mech_digit5 = TFT_eSprite(&tft);
+// TFT_eSprite mech_digit5 = TFT_eSprite(&tft);
 
 // This is the target digits for the mechanical display
 uint8_t targetDigitArray[8];
 
-void drawX(int x, int y)
-{
-  tft.drawLine(x-5, y-5, x+5, y+5, TFT_WHITE);
-  tft.drawLine(x-5, y+5, x+5, y-5, TFT_WHITE);
-}
+
 
 void createMechDigits() {
     mech_digits.createSprite(33, 559);
@@ -120,19 +109,24 @@ void createNeedle() {
 }
 
 void updateGauge(float value) {
-    dial.pushToSprite(&display,0,0); // add the dial background to display sprite
-    display.setTextDatum(BC_DATUM); // place text based on bottom center origin
+    // Add the dial background to display sprite
+    dial.pushToSprite(&display,0,0);
 
+    // 7-segment display border and background
     display.fillRoundRect(60, 165, 120, 60, 8, TFT_DARKGREY);
     display.fillRoundRect(63, 168, 114, 54, 6, 0x589d); // 0x1ad3 = #1b589d
 
+    // 7-segment digits with one decimal place
+    display.setTextDatum(BC_DATUM); // place text based on bottom center origin
     display.setTextSize(1);
     display.setTextColor(TFT_LIGHTGREY, 0x589d); // 
     display.drawFloat(value, 1, 120, 220, 7); // insert the text
 
-    needle.pushRotated(&display, (value*3)+60, TFT_BLACK); // add the needle to display sprite at correct angle
+    // Add the needle to display sprite at correct angle
+    needle.pushRotated(&display, (value*3)+60, TFT_BLACK);
     
-    display.pushSprite(0,0); // push the display sprite to the screen (this method reduces flicker)
+    // Push the display sprite to the screen (this method reduces flicker)
+    display.pushSprite(0,0);
 }
 
 void selectDisplay(int displayId) {
@@ -140,7 +134,7 @@ void selectDisplay(int displayId) {
         case 1: {
             // This CS line doesn't work for some reason
             digitalWrite(LCD_0_CS, HIGH); // native display
-            digitalWrite(LCD_1_CS, LOW); // remote display
+            // digitalWrite(LCD_1_CS, LOW); // remote display
             digitalWrite(LCD_2_CS, HIGH); // remote display
             digitalWrite(LCD_3_CS, HIGH); // remote display
             digitalWrite(LCD_4_CS, HIGH); // remote display
@@ -149,7 +143,7 @@ void selectDisplay(int displayId) {
 
         case 2: {
             digitalWrite(LCD_0_CS, HIGH); // native display
-            digitalWrite(LCD_1_CS, HIGH); // remote display
+            // digitalWrite(LCD_1_CS, HIGH); // remote display
             digitalWrite(LCD_2_CS, LOW); // remote display
             digitalWrite(LCD_3_CS, HIGH); // remote display
             digitalWrite(LCD_4_CS, HIGH); // remote display
@@ -158,7 +152,7 @@ void selectDisplay(int displayId) {
 
         case 3: {
             digitalWrite(LCD_0_CS, HIGH); // native display
-            digitalWrite(LCD_1_CS, HIGH); // remote display
+            // digitalWrite(LCD_1_CS, HIGH); // remote display
             digitalWrite(LCD_2_CS, HIGH); // remote display
             digitalWrite(LCD_3_CS, LOW); // remote display
             digitalWrite(LCD_4_CS, HIGH); // remote display
@@ -167,7 +161,7 @@ void selectDisplay(int displayId) {
 
         case 4: {
             digitalWrite(LCD_0_CS, HIGH); // native display
-            digitalWrite(LCD_1_CS, HIGH); // remote display
+            // digitalWrite(LCD_1_CS, HIGH); // remote display
             digitalWrite(LCD_2_CS, HIGH); // remote display
             digitalWrite(LCD_3_CS, HIGH); // remote display
             digitalWrite(LCD_4_CS, LOW); // remote display
@@ -177,7 +171,7 @@ void selectDisplay(int displayId) {
         // This is for local display LCD_0_CS or any invalid display given
         default: {
             digitalWrite(LCD_0_CS, LOW); // native display
-            digitalWrite(LCD_1_CS, HIGH); // remote display
+            // digitalWrite(LCD_1_CS, HIGH); // remote display
             digitalWrite(LCD_2_CS, HIGH); // remote display
             digitalWrite(LCD_3_CS, HIGH); // remote display
             digitalWrite(LCD_4_CS, HIGH); // remote display
@@ -188,10 +182,16 @@ void selectDisplay(int displayId) {
 
 void releaseDisplays() {
     digitalWrite(LCD_0_CS, HIGH); // native display
-    digitalWrite(LCD_1_CS, HIGH); // remote display 1
+    // digitalWrite(LCD_1_CS, HIGH); // remote display 1
     digitalWrite(LCD_2_CS, HIGH); // remote display 2
     digitalWrite(LCD_3_CS, HIGH); // remote display 3
     digitalWrite(LCD_4_CS, HIGH); // remote display 4
+}
+
+void drawX(int x, int y)
+{
+  tft.drawLine(x-5, y-5, x+5, y+5, TFT_WHITE);
+  tft.drawLine(x-5, y+5, x+5, y-5, TFT_WHITE);
 }
 
 std::vector<uint8_t> intToByteArray(int value) {
@@ -230,7 +230,7 @@ void setup() {
     pinMode(0,INPUT_PULLUP);
 
     // Input pin for engine state. This is how engine run time is counted.
-    pinMode(LCD_1_CS, INPUT_PULLUP);
+    pinMode(ENGINE_RUN_INPUT, INPUT_PULLUP);
 
     //////////////////////////////////////////////
     // Select ALL displays
@@ -259,35 +259,28 @@ void setup() {
 
     digitalWrite(LCD_2_CS, HIGH);
 
-    // TODO: this needs to be initialized one(or more?) for each display
+    // TODO: this needs to be initialized one(or more?) for each display to have a frame buffer
     // Initialize the frame-buffer display sprite
     display.createSprite(240, 240);
     display.setPivot(120, 120);
     display.fillSprite(TFT_BLACK);
 
     mechDigDisp.createSprite(240, 240);
-    // mechDigDisp.setPivot(120, 120);
     mechDigDisp.fillSprite(TFT_BLACK);
 
 
     // Send this to all displays. Why? Because... that's why. LOL
-    // img.pushImage(0,0,240,240,gauge2);
     img.pushImage(0,0,240,240,myGauge_1);
     img.pushSprite(0, 0);
 
     // Test of individual displays
-    // selectDisplay(2);
-    // // img.pushImage(0,0,240,240,gauge1);
-    // img.pushImage(0,0,240,240,myGauge_1);
-    // img.pushSprite(0, 0);
+    // 
 
     selectDisplay(3);
-    //   img.pushImage(0,0,240,240,gauge2);
     img.pushImage(0,0,240,240,myGauge_1b);
     img.pushSprite(0, 0);
 
     selectDisplay(4);
-    // img.pushImage(0,0,240,240,gauge3);
     //   img.pushImage(0,0,240,240,myGauge_1a);
     img.pushImage(0,0,240,240,myGauge_1b);
     img.pushSprite(0, 0);
@@ -297,39 +290,47 @@ void setup() {
     ///////////////////////////////////////////////////////////////////
     // Tests to develop gauge stuff
 
-    createDial(myGauge_1f);
+    createDial(myGauge_1g);
     createNeedle();
     // updateGauge(300);
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    createMechFGImg();
 
     //////////////////////////////////////////////////////////////////////////////////////
-    // 
+    // Setup the sprites to make a simulated mechanical counter display for 
+    // showing the engine hours.
 
+    // This creates a foreground image for the mech digit display to make a
+    // rounded outline and labeling. The black regions are transparent
+    createMechFGImg();
+
+    // Create a tall image (33 x 559 px) to take digit sliding window sub-regions.
+    // This gives the animation needed to simulate a mechanical counter action.
     createMechDigits();
-    selectDisplay(2);
+
+    // Setup the rolling digit to be taller
     mech_digit0.createSprite(33, 70);
+
+    // Setup the smaller digits
     mech_digit1.createSprite(33, 50);
     mech_digit2.createSprite(33, 50);
     mech_digit3.createSprite(33, 50);
     mech_digit4.createSprite(33, 50);
-    mech_digit5.createSprite(33, 50);
+    // mech_digit5.createSprite(33, 50);
     
     event_loop()->onRepeat(100, []() {
         static uint8_t curDigit[5] = {0, 0, 0, 0, 0};
 
-        selectDisplay(2);
-
         // First decimal place. This is a rolling digit representing 1/10th's of an hour
         float leastSigDigit = ((float)targetDigitArray[1] + ((float)targetDigitArray[0]/10.0f));
         mech_digits.pushToSprite(&mech_digit0,0,-30-(int)((leastSigDigit - 0.3) * 43.0));
-        // mech_digit0.pushSprite(180,120-35);
         mech_digit0.pushToSprite(&mechDigDisp, 180-15,120-35-50);
 
         // Digit 1
         mech_digits.pushToSprite(&mech_digit1,0,-40-((curDigit[0]/10.0) * 43));
-        // mech_digit1.pushSprite(180-33,120-35+10);
         mech_digit1.pushToSprite(&mechDigDisp, 180-33-15,120-35+10-50);
 
         if((targetDigitArray[2] > curDigit[0]/10) || ((int)curDigit[0] >= 90 && (int)targetDigitArray[2] == 0)) {
@@ -340,7 +341,6 @@ void setup() {
 
         // Digit 2
         mech_digits.pushToSprite(&mech_digit2,0,-40-((curDigit[1]/10.0) * 43));
-        // mech_digit2.pushSprite(180-33-33,120-35+10);
         mech_digit2.pushToSprite(&mechDigDisp, 180-33-33-15,120-35+10-50);
 
         if((targetDigitArray[3] > curDigit[1]/10) || ((int)curDigit[1] >= 90 && (int)targetDigitArray[3] == 0)) {
@@ -351,7 +351,6 @@ void setup() {
 
         // Digit 3
         mech_digits.pushToSprite(&mech_digit3,0,-40-((curDigit[2]/10.0) * 43));
-        // mech_digit3.pushSprite(180-33-33-33,120-35+10);
         mech_digit3.pushToSprite(&mechDigDisp, 180-33-33-33-15,120-35+10-50);
 
         if((targetDigitArray[4] > curDigit[2]/10) || ((int)curDigit[2] >= 90 && (int)targetDigitArray[4] == 0)) {
@@ -362,7 +361,6 @@ void setup() {
 
         // Digit 4
         mech_digits.pushToSprite(&mech_digit4,0,-40-((curDigit[3]/10.0) * 43));
-        // mech_digit4.pushSprite(180-33-33-33-33,120-35+10);
         mech_digit4.pushToSprite(&mechDigDisp, 180-33-33-33-33-15,120-35+10-50);
 
         if((targetDigitArray[5] > curDigit[3]/10) || ((int)curDigit[3] >= 90 && (int)targetDigitArray[5] == 0)) {
@@ -381,15 +379,13 @@ void setup() {
         //     if(curDigit[4] > 99) curDigit[4] = 0;
         // }
 
-        // Draw the decimal point
-        // tft.fillCircle(180, 131, 2, TFT_WHITE);
-
         /////////////////////////////////////////////////////////////////////
         // Draw a forground bezel image over the mech digits
         // 
-        mech_FG.pushToSprite(&mechDigDisp,0,0, TFT_BLACK); // 
-        // mech_FG.pushImage(0, 0, 240, 240, Engine_Hours_Gauge);
+        mech_FG.pushToSprite(&mechDigDisp,0,0, TFT_BLACK);
 
+        // Now show the mech digit on the display
+        selectDisplay(2);
         mechDigDisp.pushSprite(0,0);
     });
 
@@ -404,15 +400,15 @@ void setup() {
         ledcAttachPin(LCD_BACKLIGHT_PIN, LEDC_CHANNEL_0);
     #endif
 
-    // ledcWrite(LCD_BACKLIGHT_PIN, (uint32_t)800);
+    ledcWrite(LCD_BACKLIGHT_PIN, (uint32_t)800);
     // ledcWrite(LCD_BACKLIGHT_PIN, (uint32_t)200);
     // ledcWrite(LCD_BACKLIGHT_PIN, (uint32_t)50);
-    ledcWrite(LCD_BACKLIGHT_PIN, (uint32_t)25);
+    // ledcWrite(LCD_BACKLIGHT_PIN, (uint32_t)25);
     // ledcWrite(LCD_BACKLIGHT_PIN, (uint32_t)2047);
 
 
     //////////////////////////////////////////////////////////////////////////////////////
-    // 
+    // Using demo data from development SignalK server. Using the DBT for this test.
 
     auto* depthListener = new FloatSKListener("environment.depth.belowTransducer");
 
@@ -426,41 +422,11 @@ void setup() {
                 updateGauge(value);
             }));
 
-    // //////////////////////////////////////////////////////////////////////////////////////
-    // // Test function
-
-    // // Produce integers every 1 seconds
-    // auto sensor_int = new RepeatSensor<int>(1000, []() {
-    //     static int value = 0;
-    //     value += 1;
-
-    //     // std::vector<uint8_t> byteArray = intToByteArray(value);
-
-    //     // for (byte c : byteArray) {
-    //     //     ESP_LOGD("MyApp", "%d", c);
-    //     // }
-    //     // // ESP_LOGD("\n");
-
-
-    //     // if(value > 99) value = 0;
-
-    //     return value;
-    // });
-
-    // sensor_int->connect_to(new LambdaConsumer<int>(
-    //     [](int value) {
-    //         ESP_LOGD("MyApp", "int:        %d", value); 
-
-    //         // selectDisplay(2);
-    //         // mech_digits.pushToSprite(&mech_digit0,0,-30-(((float)value/10.0f) * 43));
-    //         // mech_digit0.pushSprite(120,120);
-    //     }
-    // ));
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Engine hours data gathering 
+    // Data gathering of engine run state and runtime hours 
     //
-    auto* input_state = new DigitalInputState(LCD_1_CS, INPUT_PULLUP, 500, "/Sensors/EngineState");
+    auto* input_state = new DigitalInputState(ENGINE_RUN_INPUT, INPUT_PULLUP, 500, "/Sensors/EngineState");
 
     // create a propulsion state lambda transform
     auto* propulsion_state = new LambdaTransform<float, String>(
@@ -480,14 +446,14 @@ void setup() {
     input_state->connect_to(propulsion_state);
 
     auto* invert_state = new LambdaTransform<float, bool>(
-    [](bool state) {
-        if (state) {
-            return false;
-        } else {
-            return true;
-        }
-    },
-    "/Transforms/InvertPropulsionState");
+        [](bool state) {
+            if (state) {
+                return false;
+            } else {
+                return true;
+            }
+        },
+        "/Transforms/InvertPropulsionState");
 
     // create engine hours counter using PersistentDuration
     auto* engine_hours = new TimeCounter<float>("/Transforms/EngineHours");
@@ -503,11 +469,13 @@ void setup() {
         new SKOutput<String>("propulsion.main.state", "", new SKMetadata("", "Main Engine State")));
 
     // create and connect the engine hours output object
+    // Also, send the engine runtime seconds to a lambda funtion that sends the digits to the mech digit display
     engine_hours
         ->connect_to(new SKOutput<float>("propulsion.main.runTime", "", new SKMetadata("s", "Main Engine running time")))
         ->connect_to(new LambdaConsumer<float>(
             [](float engineSeconds) {
                 std::vector<uint8_t> byteArray = intToByteArray((int)(engineSeconds / 1.0f));
+                // std::vector<uint8_t> byteArray = intToByteArray((int)(engineSeconds / 36.0f)); // Convert seconds to hours TODO: Do this when deployed.
 
                 // Pad the array with some zeros for the leading digits
                 for(int i=0; i<8; i++) {

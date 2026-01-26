@@ -35,7 +35,7 @@
      inkscape:window-y="0"
      inkscape:window-maximized="1"
      inkscape:current-layer="layer1"
-     inkscape:export-bgcolor="#000000ff" />
+     inkscape:export-bgcolor="#202020ff" />
   <defs
      id="defs1" />
   <g
@@ -154,39 +154,39 @@
          y="17.011061">ENGINE</tspan></text>
     <g
        id="g13"
-       transform="translate(0,1.1329829)">
+       transform="translate(0.56649143)">
       <text
          xml:space="preserve"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:7.56538px;font-family:FreeSerif;-inkscape-font-specification:FreeSerif;writing-mode:lr-tb;direction:ltr;fill:#bbbacc;fill-opacity:1;stroke-width:0.630449"
-         x="87.532906"
-         y="61.238373"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.31793px;font-family:FreeSerif;-inkscape-font-specification:FreeSerif;writing-mode:lr-tb;direction:ltr;fill:#bbbacc;fill-opacity:1;stroke-width:0.693161"
+         x="85.35965"
+         y="62.464241"
          id="text11"><tspan
            sodipodi:role="line"
            id="tspan11"
-           style="stroke-width:0.630449"
-           x="87.532906"
-           y="61.238373">1</tspan></text>
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:FreeSerif;-inkscape-font-specification:'FreeSerif Bold';stroke-width:0.693161"
+           x="85.35965"
+           y="62.464241">1</tspan></text>
       <text
          xml:space="preserve"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:7.56538px;font-family:FreeSerif;-inkscape-font-specification:FreeSerif;writing-mode:lr-tb;direction:ltr;fill:#bbbacc;fill-opacity:1;stroke-width:0.630449"
-         x="91.987671"
-         y="67.324944"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.31793px;font-family:FreeSerif;-inkscape-font-specification:FreeSerif;writing-mode:lr-tb;direction:ltr;fill:#bbbacc;fill-opacity:1;stroke-width:0.693161"
+         x="90.257538"
+         y="69.156258"
          id="text12"><tspan
            sodipodi:role="line"
            id="tspan12"
-           style="stroke-width:0.630449"
-           x="91.987671"
-           y="67.324944">10</tspan></text>
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:FreeSerif;-inkscape-font-specification:'FreeSerif Bold';stroke-width:0.693161"
+           x="90.257538"
+           y="69.156258">10</tspan></text>
       <path
-         style="fill:#bbbacc;fill-opacity:1;stroke:#bbbacc;stroke-width:0.65137;stroke-dasharray:none;stroke-opacity:1"
-         d="m 87.857527,66.175329 9.061671,-8.925312"
+         style="fill:#bbbacc;fill-opacity:1;stroke:#bbbacc;stroke-width:0.851;stroke-dasharray:none;stroke-opacity:1"
+         d="m 86.299676,67.449935 9.061671,-8.925312"
          id="path12" />
-      <path
-         style="fill:#bbbacc;fill-opacity:1;stroke:#bbbacc;stroke-width:0.720594;stroke-dasharray:none;stroke-opacity:1"
-         d="M 83.820184,54.468931 V 66.812327"
-         id="path13"
-         inkscape:transform-center-x="-0.99136001"
-         inkscape:transform-center-y="0.48623588" />
     </g>
+    <path
+       style="fill:#bbbacc;fill-opacity:1;stroke:#bbbacc;stroke-width:1.00198;stroke-dasharray:none;stroke-opacity:1"
+       d="M 81.979087,53.335948 V 67.94531"
+       id="path13"
+       inkscape:transform-center-x="-0.99136001"
+       inkscape:transform-center-y="0.57549754" />
   </g>
 </svg>
