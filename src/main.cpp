@@ -23,12 +23,12 @@
 #include <TFT_eSPI.h>
 
 #include "myGauge_1.h"
-#include "myGauge_1a.h"
 #include "myGauge_1b.h"
-#include "myGauge_1c.h"
 #include "myGauge_1g.h"
 #include "mechanical_Digits_v1.1.h"
 #include "engineHours_BG_v1.0b.h"
+
+#include "Coolant_Temperature_Gauge_v1.0.h"
 
 #include "DialGauge.h"
 
@@ -39,10 +39,9 @@
 #define ENGINE_RUN_INPUT 46
 
 // Remote displays' CS lines
-// #define LCD_1_CS 46   // J3 on PCB
-#define LCD_2_CS 45   // J4
-#define LCD_3_CS 42   // J5
-#define LCD_4_CS 39   // J6
+#define LCD_1_CS 45   // J4
+#define LCD_2_CS 42   // J5
+#define LCD_3_CS 39   // J6
 
 // Pin used for backlight PWM brightness control
 #define LCD_BACKLIGHT_PIN 40
@@ -71,8 +70,9 @@ TFT_eSprite mech_digit3 = TFT_eSprite(&tft);
 TFT_eSprite mech_digit4 = TFT_eSprite(&tft);
 // TFT_eSprite mech_digit5 = TFT_eSprite(&tft);
 
-// Create a new DialGauge object with the sprites
-DialGauge oilPressureGauge = DialGauge(&display, &dial, &needle);
+// Create a new DialGauge object with the sprites and the background
+// DialGauge oilPressureGauge = DialGauge(&display, &dial, &needle, myGauge_1g);
+DialGauge* oilPressureGauge;
 
 // This is the target digits for the mechanical display
 uint8_t targetDigitArray[8];
@@ -95,49 +95,35 @@ void createMechFGImg() {
 void selectDisplay(int displayId) {
     switch(displayId) {
         case 1: {
-            // This CS line doesn't work for some reason
             digitalWrite(LCD_0_CS, HIGH); // native display
-            // digitalWrite(LCD_1_CS, LOW); // remote display
+            digitalWrite(LCD_1_CS, LOW); // remote display
             digitalWrite(LCD_2_CS, HIGH); // remote display
             digitalWrite(LCD_3_CS, HIGH); // remote display
-            digitalWrite(LCD_4_CS, HIGH); // remote display
             break;
         }
 
         case 2: {
             digitalWrite(LCD_0_CS, HIGH); // native display
-            // digitalWrite(LCD_1_CS, HIGH); // remote display
+            digitalWrite(LCD_1_CS, HIGH); // remote display
             digitalWrite(LCD_2_CS, LOW); // remote display
             digitalWrite(LCD_3_CS, HIGH); // remote display
-            digitalWrite(LCD_4_CS, HIGH); // remote display
             break;
         }
 
         case 3: {
             digitalWrite(LCD_0_CS, HIGH); // native display
-            // digitalWrite(LCD_1_CS, HIGH); // remote display
+            digitalWrite(LCD_1_CS, HIGH); // remote display
             digitalWrite(LCD_2_CS, HIGH); // remote display
             digitalWrite(LCD_3_CS, LOW); // remote display
-            digitalWrite(LCD_4_CS, HIGH); // remote display
-            break;
-        }
-
-        case 4: {
-            digitalWrite(LCD_0_CS, HIGH); // native display
-            // digitalWrite(LCD_1_CS, HIGH); // remote display
-            digitalWrite(LCD_2_CS, HIGH); // remote display
-            digitalWrite(LCD_3_CS, HIGH); // remote display
-            digitalWrite(LCD_4_CS, LOW); // remote display
             break;
         }
 
         // This is for local display LCD_0_CS or any invalid display given
         default: {
             digitalWrite(LCD_0_CS, LOW); // native display
-            // digitalWrite(LCD_1_CS, HIGH); // remote display
+            digitalWrite(LCD_1_CS, HIGH); // remote display
             digitalWrite(LCD_2_CS, HIGH); // remote display
             digitalWrite(LCD_3_CS, HIGH); // remote display
-            digitalWrite(LCD_4_CS, HIGH); // remote display
         }
 
     }
@@ -145,10 +131,9 @@ void selectDisplay(int displayId) {
 
 void releaseDisplays() {
     digitalWrite(LCD_0_CS, HIGH); // native display
-    // digitalWrite(LCD_1_CS, HIGH); // remote display 1
-    digitalWrite(LCD_2_CS, HIGH); // remote display 2
-    digitalWrite(LCD_3_CS, HIGH); // remote display 3
-    digitalWrite(LCD_4_CS, HIGH); // remote display 4
+    digitalWrite(LCD_1_CS, HIGH); // remote display 2
+    digitalWrite(LCD_2_CS, HIGH); // remote display 3
+    digitalWrite(LCD_3_CS, HIGH); // remote display 4
 }
 
 void drawX(int x, int y)
@@ -202,30 +187,25 @@ void setup() {
     pinMode(LCD_0_CS, OUTPUT);
 
     // Remote CS pins
-    // pinMode(LCD_1_CS, OUTPUT);
+    pinMode(LCD_1_CS, OUTPUT);
     pinMode(LCD_2_CS, OUTPUT);
     pinMode(LCD_3_CS, OUTPUT);
-    pinMode(LCD_4_CS, OUTPUT);
 
     digitalWrite(LCD_0_CS, LOW); // native display
-    // digitalWrite(LCD_1_CS, HIGH); // remote display (test) NOTE: This one doesn't work for some reason
+    digitalWrite(LCD_1_CS, LOW); // remote display (test)
     digitalWrite(LCD_2_CS, LOW); // remote display (test)
     digitalWrite(LCD_3_CS, LOW); // remote display (test)
-    digitalWrite(LCD_4_CS, LOW); // remote display (test)
 
     tft.init();
     tft.setRotation(4);
     tft.setSwapBytes(true);
     img.setSwapBytes(true);
-    tft.fillScreen(TFT_ORANGE);
+    // tft.fillScreen(TFT_ORANGE);
+    tft.fillScreen(TFT_BLACK);
     img.createSprite(240, 240);
 
     // Now that all displays are initialized, turn off display #2
-    digitalWrite(LCD_2_CS, HIGH);
-
-    mechDigDisp.createSprite(240, 240);
-    mechDigDisp.fillSprite(TFT_BLACK);
-
+    // digitalWrite(LCD_2_CS, HIGH);
 
     // Send this to all displays. Why? Because... that's why. LOL
     img.pushImage(0,0,240,240,myGauge_1);
@@ -233,13 +213,13 @@ void setup() {
 
     // Test of individual displays
     // 
-    selectDisplay(3);
+    selectDisplay(1);
     img.pushImage(0,0,240,240,myGauge_1b);
     img.pushSprite(0, 0);
 
-    selectDisplay(4);
+    selectDisplay(3);
     //   img.pushImage(0,0,240,240,myGauge_1a);
-    img.pushImage(0,0,240,240,myGauge_1b);
+    img.pushImage(0,0,240,240,Coolant_Temp_Gauge_v1);
     img.pushSprite(0, 0);
 
     releaseDisplays();
@@ -251,7 +231,12 @@ void setup() {
     // createNeedle();
     // updateGauge(300);
 
-    oilPressureGauge.createDial(myGauge_1g);
+    // oilPressureGauge.createDial(myGauge_1g);
+
+    oilPressureGauge = new DialGauge(&display, &dial, &needle, myGauge_1g);
+
+    // selectDisplay(2);
+    // oilPressureGauge.updateGauge(37.4);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -261,6 +246,9 @@ void setup() {
     //////////////////////////////////////////////////////////////////////////////////////
     // Setup the sprites to make a simulated mechanical counter display for 
     // showing the engine hours.
+
+    mechDigDisp.createSprite(240, 240);
+    mechDigDisp.fillSprite(TFT_BLACK);
 
     // This creates a foreground image for the mech digit display to make a
     // rounded outline and labeling. The black regions are transparent
@@ -349,7 +337,7 @@ void setup() {
         mech_FG.pushToSprite(&mechDigDisp,0,0, TFT_BLACK);
 
         // Now show the mech digit on the display
-        selectDisplay(2);
+        selectDisplay(1);
         mechDigDisp.pushSprite(0,0);
     });
 
@@ -382,9 +370,9 @@ void setup() {
             [](float value) { 
                 ESP_LOGD("MyApp", "DBT:     %f meters", value);
 
-                selectDisplay(3);
+                selectDisplay(2);
                 digitalWrite(LCD_0_CS, LOW); // native display too, tee-hee Just wanted to show it on two screens at a time.
-                oilPressureGauge.updateGauge(value);
+                oilPressureGauge->updateGauge(value);
             }));
 
 

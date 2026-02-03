@@ -6,15 +6,12 @@
 class DialGauge {
 public:
     // Constructor with member variable initialization and function calls
-    DialGauge(TFT_eSprite *frameBuffer, TFT_eSprite *dial, TFT_eSprite *needle) :
+    explicit DialGauge(TFT_eSprite *frameBuffer, TFT_eSprite *dial, TFT_eSprite *needle, const unsigned short *gaugeImage) :
         frameBuffer(frameBuffer), dial(dial), needle(needle) {
         createFrameBuffer();
+        createDial(gaugeImage);
         createNeedle();
     }
-
-    // DialGauge(TFT_eSPI *tft);
-
-    void createDial(const unsigned short *gaugeImage);
 
     void updateGauge(float value);
     void updateDialImage(const unsigned short *gaugeImage);
@@ -25,8 +22,9 @@ private:
     TFT_eSprite *needle;
 
     // Private member functions
-    void createNeedle();
     void createFrameBuffer();
+    void createDial(const unsigned short *gaugeImage);
+    void createNeedle();
 };
 
 #endif
