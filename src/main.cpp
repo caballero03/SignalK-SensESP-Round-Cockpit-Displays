@@ -28,9 +28,11 @@
 #include "mechanical_Digits_v1.1.h"
 #include "engineHours_BG_v1.0b.h"
 
-#include "Coolant_Temperature_Gauge_v1.0.h"
+#include "Coolant_Temperature_Gauge_v1.2.h"
 
 #include "DialGauge.h"
+#include "CoolantTempGauge.h"
+#include "OilPressureGauge.h"
 
 // Native/local display CS line
 #define LCD_0_CS 9
@@ -55,9 +57,14 @@
 TFT_eSPI tft = TFT_eSPI();
 
 TFT_eSprite img = TFT_eSprite(&tft); // For testing only -- delete later
+
 TFT_eSprite display = TFT_eSprite(&tft);
 TFT_eSprite needle = TFT_eSprite(&tft);
 TFT_eSprite dial = TFT_eSprite(&tft);
+
+TFT_eSprite coolantDisp = TFT_eSprite(&tft);
+TFT_eSprite coolantNeedle = TFT_eSprite(&tft);
+TFT_eSprite coolantDial = TFT_eSprite(&tft);
 
 TFT_eSprite mechDigDisp = TFT_eSprite(&tft);
 TFT_eSprite mech_FG = TFT_eSprite(&tft);
@@ -72,7 +79,8 @@ TFT_eSprite mech_digit4 = TFT_eSprite(&tft);
 
 // Create a new DialGauge object with the sprites and the background
 // DialGauge oilPressureGauge = DialGauge(&display, &dial, &needle, myGauge_1g);
-DialGauge* oilPressureGauge;
+OilPressureGauge* oilPressureGauge;
+CoolantTempGauge* coolantTempGauge;
 
 // This is the target digits for the mechanical display
 uint8_t targetDigitArray[8];
@@ -219,24 +227,20 @@ void setup() {
 
     selectDisplay(3);
     //   img.pushImage(0,0,240,240,myGauge_1a);
-    img.pushImage(0,0,240,240,Coolant_Temp_Gauge_v1);
+    img.pushImage(0,0,240,240,Coolant_Temperature_Gauge_v12);
     img.pushSprite(0, 0);
+
+    // Coolant temp. needle pivot point
+    drawX(153,138);
 
     releaseDisplays();
 
     ///////////////////////////////////////////////////////////////////
-    // Tests to develop gauge stuff
+    // 
 
-    // createDial(myGauge_1g);
-    // createNeedle();
-    // updateGauge(300);
+    oilPressureGauge = new OilPressureGauge(&display, &dial, &needle, myGauge_1g, 120, 120);
+    coolantTempGauge = new CoolantTempGauge(&coolantDisp, &coolantDial, &coolantNeedle, Coolant_Temperature_Gauge_v12, 153, 138);
 
-    // oilPressureGauge.createDial(myGauge_1g);
-
-    oilPressureGauge = new DialGauge(&display, &dial, &needle, myGauge_1g);
-
-    // selectDisplay(2);
-    // oilPressureGauge.updateGauge(37.4);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -274,6 +278,7 @@ void setup() {
     // has some "cool factor" as well.
 
     event_loop()->onRepeat(100, []() {
+        // This array holds the current state of the digits
         static uint8_t curDigit[5] = {0, 0, 0, 0, 0};
 
         // First decimal place. This is a rolling digit representing 1/10th's of an hour
@@ -281,7 +286,7 @@ void setup() {
         mech_digits.pushToSprite(&mech_digit0,0,-30-(int)((leastSigDigit - 0.3) * 43.0));
         mech_digit0.pushToSprite(&mechDigDisp, 180-15,120-35-50);
 
-        // Digit 1
+        // Digit 1 -- hours
         mech_digits.pushToSprite(&mech_digit1,0,-40-((curDigit[0]/10.0) * 43));
         mech_digit1.pushToSprite(&mechDigDisp, 180-33-15,120-35+10-50);
 
@@ -291,7 +296,7 @@ void setup() {
             if(curDigit[0] > 99) curDigit[0] = 0;
         }
 
-        // Digit 2
+        // Digit 2 -- 10's of hours
         mech_digits.pushToSprite(&mech_digit2,0,-40-((curDigit[1]/10.0) * 43));
         mech_digit2.pushToSprite(&mechDigDisp, 180-33-33-15,120-35+10-50);
 
@@ -301,7 +306,7 @@ void setup() {
             if(curDigit[1] > 99) curDigit[1] = 0;
         }
 
-        // Digit 3
+        // Digit 3 -- 100's of hours
         mech_digits.pushToSprite(&mech_digit3,0,-40-((curDigit[2]/10.0) * 43));
         mech_digit3.pushToSprite(&mechDigDisp, 180-33-33-33-15,120-35+10-50);
 
@@ -311,7 +316,7 @@ void setup() {
             if(curDigit[2] > 99) curDigit[2] = 0;
         }
 
-        // Digit 4
+        // Digit 4 -- 1000's of hours
         mech_digits.pushToSprite(&mech_digit4,0,-40-((curDigit[3]/10.0) * 43));
         mech_digit4.pushToSprite(&mechDigDisp, 180-33-33-33-33-15,120-35+10-50);
 
@@ -373,6 +378,9 @@ void setup() {
                 selectDisplay(2);
                 digitalWrite(LCD_0_CS, LOW); // native display too, tee-hee Just wanted to show it on two screens at a time.
                 oilPressureGauge->updateGauge(value);
+
+                selectDisplay(3);
+                coolantTempGauge->updateGauge((value * 2.5) + 20);
             }));
 
 
@@ -414,7 +422,7 @@ void setup() {
     ConfigItem(engine_hours)->set_title("Engine Hours")->set_sort_order(1300);
 
     input_state
-        ->connect_to(invert_state)
+        ->connect_to(invert_state) // Need to invert this due to the input being reversed. Fix in hardware?
         ->connect_to(engine_hours);
 
     // create and connect the propulsion state output object
@@ -428,7 +436,7 @@ void setup() {
         ->connect_to(new LambdaConsumer<float>(
             [](float engineSeconds) {
                 std::vector<uint8_t> byteArray = intToByteArray((int)(engineSeconds / 1.0f));
-                // std::vector<uint8_t> byteArray = intToByteArray((int)(engineSeconds / 36.0f)); // Convert seconds to hours TODO: Do this when deployed.
+                // std::vector<uint8_t> byteArray = intToByteArray((int)(engineSeconds / 36.0f)); // Convert seconds to hours  =====>> TODO: Do this when deployed.
 
                 // Pad the array with some zeros for the leading digits
                 for(int i=0; i<8; i++) {
