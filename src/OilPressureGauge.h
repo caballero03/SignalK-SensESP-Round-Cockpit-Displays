@@ -1,3 +1,6 @@
+#ifndef OIL_PRESSURE_GAUGE_H
+#define OIL_PRESSURE_GAUGE_H
+
 #include "DialGauge.h"
 
 class OilPressureGauge : public DialGauge  { 
@@ -26,3 +29,5 @@ public:
     }
     
 };
+
+#endif

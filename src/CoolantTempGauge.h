@@ -1,3 +1,5 @@
+#ifndef COOLANT_TEMP_DIAL_GAUGE_H
+#define COOLANT_TEMP_DIAL_GAUGE_H
 
 #include "DialGauge.h"
 
@@ -19,3 +21,5 @@ public:
     }
     
 };
+
+#endif

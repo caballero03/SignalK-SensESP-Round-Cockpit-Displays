@@ -20,6 +20,8 @@
 #include "sensesp/system/lambda_consumer.h"
 #include "sensesp_app_builder.h"
 
+#include "transforms/kelvintofahrenheit.h"
+
 #include <TFT_eSPI.h>
 
 #include "myGauge_1.h"
@@ -29,10 +31,12 @@
 #include "engineHours_BG_v1.0b.h"
 
 #include "Coolant_Temperature_Gauge_v1.2.h"
+#include "Diesel_Fuel_Gauge_v1.0.h"
 
 #include "DialGauge.h"
 #include "CoolantTempGauge.h"
 #include "OilPressureGauge.h"
+#include "FuelLevelGauge.h"
 
 // Native/local display CS line
 #define LCD_0_CS 9
@@ -66,6 +70,10 @@ TFT_eSprite coolantDisp = TFT_eSprite(&tft);
 TFT_eSprite coolantNeedle = TFT_eSprite(&tft);
 TFT_eSprite coolantDial = TFT_eSprite(&tft);
 
+TFT_eSprite fuelDisp = TFT_eSprite(&tft);
+TFT_eSprite fuelNeedle = TFT_eSprite(&tft);
+TFT_eSprite fuelDial = TFT_eSprite(&tft);
+
 TFT_eSprite mechDigDisp = TFT_eSprite(&tft);
 TFT_eSprite mech_FG = TFT_eSprite(&tft);
 
@@ -78,9 +86,9 @@ TFT_eSprite mech_digit4 = TFT_eSprite(&tft);
 // TFT_eSprite mech_digit5 = TFT_eSprite(&tft);
 
 // Create a new DialGauge object with the sprites and the background
-// DialGauge oilPressureGauge = DialGauge(&display, &dial, &needle, myGauge_1g);
 OilPressureGauge* oilPressureGauge;
 CoolantTempGauge* coolantTempGauge;
+FuelLevelGauge* fuelLevelGauge;
 
 // This is the target digits for the mechanical display
 uint8_t targetDigitArray[8];
@@ -150,6 +158,8 @@ void drawX(int x, int y)
   tft.drawLine(x-5, y+5, x+5, y-5, TFT_WHITE);
 }
 
+// A function to peel the digits out of the engine hours to 
+// display one-by-one on the mechanical digit display
 std::vector<uint8_t> intToByteArray(int value) {
     std::vector<uint8_t> digits;
 
@@ -161,6 +171,15 @@ std::vector<uint8_t> intToByteArray(int value) {
     return digits;
 }
 
+// Bogus fuel level for testing gauges
+float diesel_tank_level_read_callback() { 
+    return 0.7097427;
+}
+
+// Bogus engine temp for testing gauges
+float engine_coolant_temp_read_callback() { 
+    return 289.8167; // 62 derees F
+}
 
 using namespace sensesp;
 
@@ -212,17 +231,14 @@ void setup() {
     tft.fillScreen(TFT_BLACK);
     img.createSprite(240, 240);
 
-    // Now that all displays are initialized, turn off display #2
-    // digitalWrite(LCD_2_CS, HIGH);
-
     // Send this to all displays. Why? Because... that's why. LOL
     img.pushImage(0,0,240,240,myGauge_1);
     img.pushSprite(0, 0);
 
     // Test of individual displays
     // 
-    selectDisplay(1);
-    img.pushImage(0,0,240,240,myGauge_1b);
+    selectDisplay(0);
+    img.pushImage(0,0,240,240,Diesel_Fuel_Gauge_v10);
     img.pushSprite(0, 0);
 
     selectDisplay(3);
@@ -240,6 +256,7 @@ void setup() {
 
     oilPressureGauge = new OilPressureGauge(&display, &dial, &needle, myGauge_1g, 120, 120);
     coolantTempGauge = new CoolantTempGauge(&coolantDisp, &coolantDial, &coolantNeedle, Coolant_Temperature_Gauge_v12, 153, 138);
+    fuelLevelGauge = new FuelLevelGauge(&fuelDisp, &fuelDial, &fuelNeedle, Diesel_Fuel_Gauge_v10, 153, 138);
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -361,6 +378,7 @@ void setup() {
     // ledcWrite(LCD_BACKLIGHT_PIN, (uint32_t)200);
     // ledcWrite(LCD_BACKLIGHT_PIN, (uint32_t)50);
     // ledcWrite(LCD_BACKLIGHT_PIN, (uint32_t)25);
+    // ledcWrite(LCD_BACKLIGHT_PIN, (uint32_t)10);
     // ledcWrite(LCD_BACKLIGHT_PIN, (uint32_t)2047);
 
 
@@ -376,11 +394,8 @@ void setup() {
                 ESP_LOGD("MyApp", "DBT:     %f meters", value);
 
                 selectDisplay(2);
-                digitalWrite(LCD_0_CS, LOW); // native display too, tee-hee Just wanted to show it on two screens at a time.
+                // digitalWrite(LCD_0_CS, LOW); // native display too, tee-hee Just wanted to show it on two screens at a time.
                 oilPressureGauge->updateGauge(value);
-
-                selectDisplay(3);
-                coolantTempGauge->updateGauge((value * 2.5) + 20);
             }));
 
 
@@ -454,6 +469,42 @@ void setup() {
                 }
             }));
 
+    //////////////////////////////////////////////////////////////////////////////////
+    // engine_coolant_temp_read_callback
+
+    // auto* engine_temp_input = new RepeatSensor<float>(1000, engine_coolant_temp_read_callback);
+
+    // engine_temp_input
+    //     ->connect_to(new SKOutputFloat("propulsion.main.temperature", "/engine/temp/sk"));
+
+    // auto* diesel_tank_level_input = new RepeatSensor<float>(1000, diesel_tank_level_read_callback);
+
+    // diesel_tank_level_input
+    //     ->connect_to(new SKOutputFloat("tanks.fuel.main.currentLevel", "/diesel/tank/sk"));
+
+    auto* engineTempListener = new FloatSKListener("propulsion.main.temperature");
+
+    engineTempListener
+        // ->connect_to(new KelvinToFahrenheit())
+        ->connect_to(new LambdaConsumer<float>(
+            [](float value) { 
+                ESP_LOGD("MyApp", "Temp:     %f C", value - 273.15);
+
+                selectDisplay(3);
+                coolantTempGauge->updateGauge((value - 273.15));
+            }));
+
+    auto* fuelListener = new FloatSKListener("tanks.fuel.main.currentLevel");
+
+    fuelListener
+        ->connect_to(new LambdaConsumer<float>(
+            [](float value) { 
+                ESP_LOGD("MyApp", "Fuel:     %f %%", value);
+
+                selectDisplay(0);
+                fuelLevelGauge->updateGauge(value * 100);
+            }));
+    
     /////////////////////////////////////////////////////////////////////
     // To avoid garbage collecting all shared pointers created in setup(),
     // loop from here.
